@@ -1,0 +1,110 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  name          String
+  role          Role      @default(CLIENT)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  tasks         Task[]    @relation("ClientTasks")
+  bids          Bid[]
+  profile       Profile?
+  reviews       Review[]  @relation("UserReviews")
+  messages      Message[] @relation("UserMessages")
+}
+
+model Task {
+  id          String      @id @default(cuid())
+  title       String
+  description String
+  budget      Float
+  deadline    DateTime
+  status      TaskStatus  @default(PENDING)
+  clientId    String
+  client      User        @relation("ClientTasks", fields: [clientId], references: [id])
+  bids        Bid[]
+  reviews     Review[]
+  messages    Message[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Bid {
+  id        String     @id @default(cuid())
+  amount    Float
+  message   String
+  status    BidStatus  @default(PENDING)
+  userId    String
+  user      User       @relation(fields: [userId], references: [id])
+  taskId    String
+  task      Task       @relation(fields: [taskId], references: [id])
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@unique([userId, taskId])
+}
+
+model Profile {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id])
+  bio           String?
+  skills        String[]
+  rating        Float    @default(0)
+  completedTasks Int     @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id])
+  userId    String
+  user      User     @relation("UserReviews", fields: [userId], references: [id])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  senderId  String
+  sender    User     @relation("UserMessages", fields: [senderId], references: [id])
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id])
+}
+
+enum Role {
+  CLIENT
+  TASKER
+  ADMIN
+}
+
+enum TaskStatus {
+  PENDING
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum BidStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+} 
