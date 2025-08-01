@@ -34,7 +34,12 @@ export default function DashboardPage() {
           throw new Error('Failed to fetch tasks');
         }
         const data = await response.json();
-        setTasks(data);
+        if (Array.isArray(data)) {
+          setTasks(data as Task[]);
+        } else {
+          setError('Invalid data format received from server');
+          setTasks([]);
+        }
       } catch (error) {
         setError('Failed to load tasks');
         console.error('Error fetching tasks:', error);
@@ -254,12 +259,16 @@ export default function DashboardPage() {
                             {session.user.role === 'CLIENT' && task.status === 'PENDING' && bid.status === 'PENDING' && (
                               <div className="flex space-x-2">
                                 <button
+                                  type="button"
+                                  title="Accept bid"
                                   onClick={() => handleBidAction(task.id, bid.id, 'accept')}
                                   className="text-green-600 hover:text-green-800"
                                 >
                                   <FaCheck />
                                 </button>
                                 <button
+                                  type="button"
+                                  title="Reject bid"
                                   onClick={() => handleBidAction(task.id, bid.id, 'reject')}
                                   className="text-red-600 hover:text-red-800"
                                 >

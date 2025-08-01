@@ -89,6 +89,7 @@ export default function TasksPage() {
           </div>
           <div className="relative">
             <select
+              aria-label="Filter by category"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="appearance-none pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"

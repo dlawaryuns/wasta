@@ -47,7 +47,7 @@ export default function TaskDetailPage() {
         }
         const data = await response.json();
         setTask(data);
-      } catch (error) {
+      } catch {
         setError('Failed to load task');
       } finally {
         setLoading(false);
@@ -85,7 +85,7 @@ export default function TaskDetailPage() {
       setTask(updatedTask);
       setBidAmount('');
       setBidMessage('');
-    } catch (error) {
+    } catch {
       setError('Failed to submit bid');
     }
   };
